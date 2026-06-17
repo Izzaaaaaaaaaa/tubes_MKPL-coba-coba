@@ -1,0 +1,109 @@
+name: Python FastAPI CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  inspect:
+    name: Continuous Inspection (Lint, Type, Security)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+        cache: "pip"
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run Ruff Format Check
+      run: ruff format --check .
+
+    - name: Run Ruff Linter
+      run: ruff check .
+
+    - name: Run Mypy (Type Check)
+      run: mypy app
+
+    - name: Run Bandit (Security Check)
+      run: bandit -r app
+
+  test:
+    name: Continuous Testing (Pytest & Coverage)
+    needs: inspect
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+        cache: "pip"
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run Tests with Coverage
+      run: |
+        pytest --cov=app --cov-report=xml --cov-report=term-missing
+
+    - name: Enforce Coverage Threshold (80%)
+      run: |
+        pip install coverage
+        coverage report --fail-under=80
+
+  deploy:
+    name: Continuous Delivery & Deployment
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Docker Image Locally (Verification)
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: false
+        tags: fastapi-todo-app:latest
+
+    # --- SIMULATED DEPLOYMENT / DELIVERY ---
+    # Langkah di bawah ini dapat diaktifkan jika Anda ingin mengunggah ke Docker Hub
+    # atau men-deploy ke cloud provider seperti Render/Railway secara otomatis.
+    # 
+    # - name: Log in to Docker Hub
+    #   uses: docker/login-action@v3
+    #   with:
+    #     username: ${{ secrets.DOCKER_USERNAME }}
+    #     password: ${{ secrets.DOCKER_PASSWORD }}
+    # 
+    # - name: Build and Push Docker Image
+    #   uses: docker/build-push-action@v5
+    #   with:
+    #     context: .
+    #     push: true
+    #     tags: ${{ secrets.DOCKER_USERNAME }}/fastapi-todo-app:latest
+    #
+    # - name: Deploy to Render (Webhook)
+    #   run: |
+    #     curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
