@@ -25,7 +25,6 @@ app = FastAPI(
 app.include_router(tasks.router)
 
 
-
 @app.get("/", response_class=HTMLResponse)
 def read_root() -> str:
     return """
