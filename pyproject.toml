@@ -15,6 +15,9 @@ select = [
 ]
 ignore = [
     "B008", # Allow Depends() in function arguments for FastAPI
+    "E501", # Ignore line length errors (useful for inline HTML templates)
+    "W291", # Ignore trailing whitespace (inside multiline HTML strings)
+    "W293", # Ignore blank line whitespace (inside multiline HTML strings)
 ]
 
 

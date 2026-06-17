@@ -1,0 +1,31 @@
+# Git
+.git
+.github
+
+# Virtual Environment
+.venv
+venv
+ENV
+
+# Python Cache & Build
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment Variables
+.env

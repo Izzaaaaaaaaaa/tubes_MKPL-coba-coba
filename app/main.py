@@ -2,31 +2,6 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-
-from app.database import Base, engine
-from app.routers import tasks
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    # Create tables
-    Base.metadata.create_all(bind=engine)
-    yield
-
-
-app = FastAPI(
-    title="Task Management API",
-    description="API sederhana untuk demonstrasi testing & inspeksi CI/CD",
-    version="1.0.0",
-    lifespan=lifespan,
-)
-
-app.include_router(tasks.router)
-
-
-from collections.abc import AsyncGenerator
-from contextlib import asynccontextmanager
-from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
 from app.database import Base, engine
@@ -48,6 +23,7 @@ app = FastAPI(
 )
 
 app.include_router(tasks.router)
+
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -435,4 +411,3 @@ def read_root() -> str:
     </body>
     </html>
     """
-
